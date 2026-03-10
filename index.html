@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnostic ERP — Studio Petit Martin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #1a1a1a;
+    --dark: #2c2c2c;
+    --mid: #666;
+    --light: #999;
+    --border: #e2e2e2;
+    --bg: #fafafa;
+    --white: #fff;
+    --accent: #1a1a1a;
+    --yes: #2d6a4f;
+    --no: #9b2226;
+    --na: #888;
+    --yes-bg: #d8f3dc;
+    --no-bg: #fde8e8;
+    --na-bg: #f0f0f0;
+    --section-bg: #f4f4f4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    background: var(--bg);
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--black);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 52px;
+    gap: 16px;
+  }
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .topbar-logo {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    font-weight: 400;
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+  .topbar-title {
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+  }
+  .topbar-sep { opacity: 0.2; }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    max-width: 320px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 2px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: white;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    opacity: 0.6;
+    white-space: nowrap;
+  }
+
+  .topbar-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); color: white; }
+  .btn-white {
+    background: white;
+    color: var(--black);
+  }
+  .btn-white:hover { background: #eee; }
+
+  /* ── MAIN ── */
+  .main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── META FIELDS ── */
+  .meta-block {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px 24px;
+  }
+  .meta-field label {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--light);
+    font-weight: 400;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+  .meta-field input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 4px 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--black);
+    background: transparent;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .meta-field input:focus { border-color: var(--black); }
+  .meta-field.wide { grid-column: span 2; }
+  .meta-field.full { grid-column: span 3; }
+
+  /* ── NAV SECTIONS ── */
+  .sections-nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .nav-pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--mid);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-pill:hover { border-color: var(--black); color: var(--black); }
+  .nav-pill.active { background: var(--black); color: white; border-color: var(--black); }
+
+  /* ── SECTION BLOCK ── */
+  .section-block {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: var(--section-bg);
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .section-header:hover { background: #ececec; }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--light);
+    min-width: 20px;
+  }
+  .section-name {
+    flex: 1;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: var(--dark);
+  }
+  .section-stats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stat-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .stat-yes { background: var(--yes-bg); color: var(--yes); }
+  .stat-no  { background: var(--no-bg);  color: var(--no); }
+  .stat-total { background: #eee; color: var(--mid); }
+  .chevron {
+    font-size: 10px;
+    color: var(--light);
+    transition: transform 0.2s;
+  }
+  .section-block.collapsed .chevron { transform: rotate(-90deg); }
+  .section-block.collapsed .section-body { display: none; }
+
+  /* ── ITEMS ── */
+  .section-body {}
+
+  .item-row {
+    display: grid;
+    grid-template-columns: 36px 1fr 120px 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+    min-height: 48px;
+  }
+  .item-row:last-child { border-bottom: none; }
+  .item-row:hover { background: #fdfcfc; }
+  .item-row.is-note { background: #fdfdf9; }
+  .item-row.answered-yes { background: #f6fcf8; }
+  .item-row.answered-no  { background: #fdf6f6; }
+
+  .item-num {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 14px 0 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--light);
+    border-right: 1px solid var(--border);
+  }
+  .item-text {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--dark);
+    line-height: 1.55;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+  }
+  .item-text.is-note-text {
+    font-style: italic;
+    color: var(--light);
+    font-size: 11px;
+  }
+  .item-note-internal {
+    font-size: 10px;
+    color: var(--light);
+    font-style: italic;
+    margin-top: 2px;
+  }
+  .item-oui-non {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 8px;
+    border-right: 1px solid var(--border);
+  }
+  .toggle-btn {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--light);
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .toggle-btn:hover { border-color: #aaa; color: var(--mid); }
+  .toggle-btn.active-yes {
+    background: var(--yes-bg);
+    border-color: var(--yes);
+    color: var(--yes);
+    font-weight: 500;
+  }
+  .toggle-btn.active-no {
+    background: var(--no-bg);
+    border-color: var(--no);
+    color: var(--no);
+    font-weight: 500;
+  }
+  .toggle-btn.active-na {
+    background: var(--na-bg);
+    border-color: #bbb;
+    color: var(--na);
+  }
+
+  .item-remark {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+  }
+  .item-remark input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid transparent;
+    padding: 4px 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--dark);
+    background: transparent;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .item-remark input:focus { border-color: var(--border); }
+  .item-remark input::placeholder { color: #ccc; }
+
+  /* ── OBLIGATIONS ── */
+  .obligations {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-top: 16px;
+  }
+  .obligations h3 {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--light);
+    font-weight: 400;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .obligations ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .obligations li {
+    font-size: 11px;
+    color: var(--mid);
+    font-weight: 300;
+    line-height: 1.5;
+    padding-left: 14px;
+    position: relative;
+  }
+  .obligations li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--border);
+  }
+
+  /* ── SUMMARY PANEL ── */
+  .summary-panel {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    min-width: 200px;
+    z-index: 50;
+  }
+  .summary-title {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--light);
+    margin-bottom: 12px;
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+  .summary-row span:first-child { color: var(--mid); font-weight: 300; }
+  .summary-row .count {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 400;
+  }
+  .count-yes { color: var(--yes); }
+  .count-no  { color: var(--no); }
+  .count-total { color: var(--mid); }
+
+  /* ── PRINT ── */
+  /* ── PRINT ANSWER (visible only on print) ── */
+  .print-answer { display: none; }
+  .print-remark { display: none; }
+
+  @media print {
+    .topbar, .sections-nav, .summary-panel, .toggle-btn { display: none !important; }
+    .item-remark input { border-bottom: 1px solid #ccc !important; }
+    .section-block.collapsed .section-body { display: block !important; }
+    body { background: white; }
+    .main { padding: 0; max-width: 100%; }
+    .item-row { break-inside: avoid; }
+    .item-remark input { display: none !important; }
+    .print-remark {
+      display: block !important;
+      font-size: 11px;
+      color: #444;
+      font-style: italic;
+      padding: 4px 2px;
+      min-height: 16px;
+      border-bottom: 1px solid #ddd;
+      width: 100%;
+    }
+
+    .print-answer {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      color: #666;
+    }
+    .print-answer.ans-yes {
+      background: #d8f3dc;
+      border-color: #2d6a4f;
+      color: #2d6a4f;
+    }
+    .print-answer.ans-no {
+      background: #fde8e8;
+      border-color: #9b2226;
+      color: #9b2226;
+    }
+    .print-answer.ans-na {
+      background: #f0f0f0;
+      border-color: #aaa;
+      color: #888;
+    }
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--black);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 12px;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">STUDIO PETIT MARTIN</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-title">Diagnostic Visite Local ERP</span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-label" id="progressLabel">0 / 0</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost" onclick="resetAll()">Réinitialiser</button>
+    <button class="btn btn-ghost" onclick="exportJSON()">↓ Exporter</button>
+    <button class="btn btn-white" onclick="window.print()">Imprimer</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- META -->
+  <div class="meta-block">
+    <div class="meta-field wide">
+      <label>Local</label>
+      <input type="text" id="meta-local" placeholder="Adresse du local">
+    </div>
+    <div class="meta-field">
+      <label>Date</label>
+      <input type="date" id="meta-date">
+    </div>
+    <div class="meta-field wide">
+      <label>Client</label>
+      <input type="text" id="meta-client" placeholder="Nom du client">
+    </div>
+    <div class="meta-field">
+      <label>M²</label>
+      <input type="text" id="meta-m2" placeholder="Surface">
+    </div>
+    <div class="meta-field wide">
+      <label>Destination</label>
+      <input type="text" id="meta-dest" placeholder="Type d'exploitation">
+    </div>
+    <div class="meta-field">
+      <label>HSP</label>
+      <input type="text" id="meta-hsp" placeholder="Hauteur sous plafond">
+    </div>
+    <div class="meta-field">
+      <label>Durée de la visite</label>
+      <input type="text" id="meta-duree" placeholder="ex. 1h30">
+    </div>
+  </div>
+
+  <!-- NAV PILLS -->
+  <div class="sections-nav" id="sectionsNav"></div>
+
+  <!-- SECTIONS -->
+  <div id="sectionsContainer"></div>
+
+  <!-- OBLIGATIONS -->
+  <div class="obligations">
+    <h3>Obligations — Vérifications Sécurité</h3>
+    <ul>
+      <li>Formation du personnel sur la conduite à tenir en cas d'incendie et l'utilisation des moyens de secours</li>
+      <li>Vérification des installations électriques, gaz, chauffage et ventilation : 1 fois par an</li>
+      <li>Vérification du système de sécurité incendie : 1 fois par an (2 visites possibles selon NFS 61-933)</li>
+      <li>Contrat d'entretien obligatoire du système de sécurité incendie</li>
+      <li>Vérification du système de sécurité par organisme agréé : tous les 3 ans</li>
+      <li>Vérification des extincteurs : 1 fois par an</li>
+      <li>S'assurer que toutes les vérifications techniques et de sécurité soient à jour avant réouverture</li>
+      <li>S'assurer que les installations de sécurité soient fonctionnelles (SSI, éclairage de sécurité)</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- SUMMARY -->
+<div class="summary-panel">
+  <div class="summary-title">Avancement</div>
+  <div class="summary-row"><span>Conformes</span><span class="count count-yes" id="sumYes">0</span></div>
+  <div class="summary-row"><span>Non conformes</span><span class="count count-no" id="sumNo">0</span></div>
+  <div class="summary-row"><span>N/A</span><span class="count count-total" id="sumNa">0</span></div>
+  <div class="summary-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+    <span>Renseignés</span><span class="count count-total" id="sumTotal">0</span>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = [
+  { num: "1", title: "URBANISME", items: [
+    { id: "1.1", text: "Vérifier sur le PLU que l'exploitation souhaitée est autorisée" },
+    { id: "1.2", text: "Zone ABF (Architecte des Bâtiments de France)" },
+    { id: "1.3", text: "Règlementation enseigne dans la zone (RLP)" },
+    { id: "1.4", text: "Taille de la terrasse autorisée" },
+    { id: null,  text: "Déplacement licence 3 ou 4 (périmètre 125 m protégé)", note: "Daniele.EICHWALD@strasbourg.eu" },
+    { id: null,  text: "Fouille archéologique si décaissement cave (2 m sous niveau de la rue)" },
+  ]},
+  { num: "2", title: "CO-PROPRIÉTÉ / PROPRIÉTAIRE", items: [
+    { id: "2.1", text: "Vérifier les exploitations et heures commerciales acceptées dans le bail" },
+    { id: "2.2", text: "Possibilité d'installer un groupe clim à l'extérieur ou à l'intérieur ?" },
+    { id: "2.3", text: "Possibilité d'installer une extraction en façade ou dans une cheminée existante ?" },
+    { id: "2.4", text: "Possibilité de créer des percements techniques en façade ou toiture ? (VMC, gaines, trémis, saignée sol)" },
+    { id: "2.5", text: "Autorisation écrite travaux dans le local (vérifier bail)" },
+    { id: "2.6", text: "Article 606 : État des structures porteuses" },
+  ]},
+  { num: "3", title: "ÉNERGIE — ÉLECTRICITÉ — GAZ", items: [
+    { id: "3.1", text: "Puissance élec du TGBT (tarif jaune ou bleu ?)", note: "Photo du tableau + puissance (numéro dans le petit rond à côté du disjoncteur principal)" },
+    { id: "3.2", text: "Triphasé présent ?", note: "Mention 440V, 4 pôles, 3 phases sur disjoncteur principal" },
+    { id: "3.3", text: "Aux normes en vigueur si modification ?", note: "Photo du TGBT : puissance disponible, triphasé cuisine…" },
+    { id: "3.4", text: "Interdiff ? Disjoncteurs différentiels ? État disjoncteur principal ?" },
+    { id: "3.5", text: "Abonnement, puissance admissible sans travaux" },
+    { id: "3.6", text: "Alarme intrusion" },
+    { id: "3.7", text: "Gaz ? Électrovanne ?" },
+    { id: "3.8", text: "Type de chauffage ?" },
+    { id: null,  text: "⚠ Bien s'assurer de la puissance en kW possible avant de lancer des commandes et estimations de cuisine" },
+  ]},
+  { num: "4", title: "RESTAURANT — CUISINE — HYGIÈNE", items: [
+    { id: "4.1", text: "Bac à graisse — enterré ?" },
+    { id: "4.2", text: "Extraction : état, dimensions, emplacement, cheminement", note: "Faire des photos !" },
+    { id: "4.3", text: "Compensation (air neuf)" },
+    { id: "4.4", text: "Centrale de traitement d'air ?" },
+    { id: "4.5", text: "VMC (ventilation mécanique contrôlée) — obligatoire en cuisine, WC et salle" },
+    { id: "4.6", text: "Siphon de sol" },
+    { id: "4.7", text: "Lave-mains à commande fémorale" },
+    { id: "4.8", text: "Marche en avant respectée" },
+    { id: "4.9", text: "Commande de désenfumage" },
+    { id: "4.10", text: "Matériaux imputrescibles" },
+    { id: "4.11", text: "Chauffe-eau ?" },
+    { id: null,  text: "ℹ Pas de système d'extinction friteuses obligatoire" },
+  ]},
+  { num: "5", title: "BÂTI EXISTANT", items: [
+    { id: "5.1", text: "Skydome ou exutoire de désenfumage prévu" },
+    { id: "5.2", text: "Mise en place d'un coffret d'asservissement" },
+    { id: "5.3", text: "Emplacements techniques prévus pour CVC (moteurs/groupes au sol ou en toiture)" },
+    { id: "5.4", text: "Poids admis supplémentaire en suspension de la toiture — possibilité de percements ?" },
+    { id: "5.5", text: "Faux plafonds ? Typologie, complexe ? Qu'y a-t-il au-dessus ?" },
+    { id: "5.6", text: "Éléments de l'existant à conserver ? (déco, mobilier, sols…)" },
+  ]},
+  { num: "6", title: "RÉGLEMENTATION PROTECTION INCENDIE", items: [
+    { id: "6.1", text: "Classement ERP actuel déposé en Mairie — OBLIGATOIRE" },
+    { id: "6.2", text: "Effectif souhaité ?\n— < 20 pers. = 1 UP\n— 20 à 50 pers. = 1 UP + 1 accès\n— 51 à 100 pers. = 2×1 UP ou 2 UP + accès", note: "Largeur des portes de sortie (et SAS) — largeur des escaliers" },
+    { id: "6.3", text: "Quel type d'alarme ?", note: "Type 4 ?" },
+    { id: "6.4", text: "DM en nombre suffisant — à chaque sortie de secours" },
+    { id: "6.5", text: "Plafond CF1H avec PV — obligatoire si + de 19 personnes" },
+    { id: "6.6", text: "Locaux à risques conformes (CF, ferme-portes…) si réserve" },
+    { id: "6.7", text: "Arrêt d'urgence « coup de poing » en cuisine" },
+    { id: "6.8", text: "Classement cuisine : Grande Cuisine ou Grande Cuisine Ouverte ? Puissance de chauffe > 20 kW ?" },
+    { id: "6.9", text: "Écran de cantonnement des fumées ? (retombée 50 cm plafond fini cuisine/salle ou hotte H ≥ 50 cm)" },
+    { id: "6.10", text: "Blocs autonomes de sortie de secours en nombre suffisant et fonctionnels" },
+    { id: "6.11", text: "Moteur extraction CR1 résistant 400°/2H — docs techniques à demander" },
+    { id: "6.12", text: "Documents de révision annuels : élec, incendie, registre de sécurité, extincteurs…" },
+    { id: "6.13", text: "Désenfumage salle RDC + 300 m² et + 100 m² en sous-sol" },
+  ]},
+  { num: "7", title: "ACCESSIBILITÉ PMR", items: [
+    { id: "7.1", text: "Dérogation ? À fournir" },
+    { id: "7.2", text: "Marches à l'entrée ?" },
+    { id: "7.3", text: "Rampe ?" },
+    { id: "7.4", text: "Sonnette PMR ?" },
+    { id: "7.5", text: "Caisse PMR" },
+    { id: "7.6", text: "SAS d'entrée" },
+    { id: "7.7", text: "WC PMR ? Conforme ?" },
+    { id: "7.8", text: "SAS WC ? (les WC ne peuvent pas donner directement sur la salle)" },
+    { id: "7.9", text: "Accessoires obligatoires ? (barre de support, porte-savon…)" },
+    { id: "7.10", text: "Largeurs de passage des portes" },
+    { id: "7.11", text: "Escaliers ? Dimensions" },
+    { id: "7.12", text: "Main courante sur escalier — continue, dépasse de 28 cm en haut et en bas" },
+    { id: "7.13", text: "Nez de marches antidérapants et contrastés" },
+    { id: "7.14", text: "Marquage podotactile en haut de l'escalier ?" },
+    { id: "7.15", text: "Ressauts ou marches à l'entrée ou dans le cheminement" },
+  ]},
+  { num: "8", title: "DÉSORDRES VISIBLES — POINTS DE VIGILANCE", items: [
+    { id: "8.1", text: "État général des lieux", note: "État des choses" },
+    { id: "8.2", text: "Documents de révision annuels : élec, incendie, registre de sécurité, extincteurs…" },
+  ]},
+  { num: "9", title: "BRIEF AMÉNAGEMENTS — DEMANDES CLIENT", items: [
+    { id: "9.1", text: "Places assises : compter 1 pers/m² en salle ou déclaration MOA à minimum 1 pers/2 m²" },
+    { id: "9.2", text: "Rénovation : circulation principale 120 cm — 90 cm min. — cheminements secondaires 60 cm (entre tables)" },
+  ]},
+];
+
+// State
+const state = {}; // itemKey -> { answer: 'yes'|'no'|'na'|null, remark: '' }
+
+function itemKey(secNum, itemId, idx) {
+  return itemId ? itemId : `${secNum}_note_${idx}`;
+}
+
+function isCheckable(item) {
+  return item.id !== null;
+}
+
+// Build UI
+function buildUI() {
+  const nav = document.getElementById('sectionsNav');
+  const container = document.getElementById('sectionsContainer');
+
+  DATA.forEach((sec, si) => {
+    // Nav pill
+    const pill = document.createElement('div');
+    pill.className = 'nav-pill';
+    pill.textContent = sec.num + '. ' + sec.title.split('—')[0].trim();
+    pill.dataset.sec = sec.num;
+    pill.onclick = () => {
+      document.getElementById('sec-' + sec.num).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    nav.appendChild(pill);
+
+    // Section block
+    const block = document.createElement('div');
+    block.className = 'section-block';
+    block.id = 'sec-' + sec.num;
+
+    const header = document.createElement('div');
+    header.className = 'section-header';
+    header.innerHTML = `
+      <span class="section-num">${sec.num}</span>
+      <span class="section-name">${sec.title}</span>
+      <div class="section-stats">
+        <span class="stat-pill stat-yes" id="stat-yes-${sec.num}">✓ 0</span>
+        <span class="stat-pill stat-no" id="stat-no-${sec.num}">✗ 0</span>
+        <span class="stat-pill stat-total" id="stat-total-${sec.num}">/ ${sec.items.filter(i=>i.id).length}</span>
+      </div>
+      <span class="chevron">▾</span>
+    `;
+    header.onclick = () => block.classList.toggle('collapsed');
+    block.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'section-body';
+
+    sec.items.forEach((item, ii) => {
+      const key = itemKey(sec.num, item.id, ii);
+      state[key] = { answer: null, remark: '' };
+
+      const row = document.createElement('div');
+      row.className = 'item-row' + (item.id ? '' : ' is-note');
+      row.id = 'row-' + key;
+
+      const textLines = item.text.split('\n').map(l => `<span>${l}</span>`).join('');
+      const noteHtml = item.note ? `<span class="item-note-internal">↳ ${item.note}</span>` : '';
+
+      row.innerHTML = `
+        <div class="item-num">${item.id || ''}</div>
+        <div class="item-text ${item.id ? '' : 'is-note-text'}">${textLines}${noteHtml}</div>
+        <div class="item-oui-non" id="toggle-${key}">
+          ${item.id ? `
+            <button class="toggle-btn" onclick="setAnswer('${key}','yes','${sec.num}')" id="btn-yes-${key}">OUI</button>
+            <button class="toggle-btn" onclick="setAnswer('${key}','no','${sec.num}')" id="btn-no-${key}">NON</button>
+            <button class="toggle-btn" onclick="setAnswer('${key}','na','${sec.num}')" id="btn-na-${key}">N/A</button>
+            <span class="print-answer" id="print-${key}">—</span>
+          ` : ''}
+        </div>
+        <div class="item-remark">
+          <input type="text" placeholder="Remarque…" id="remark-input-${key}" oninput="setRemark('${key}', this.value)">
+          <span class="print-remark" id="print-remark-${key}"></span>
+        </div>
+      `;
+      body.appendChild(row);
+    });
+
+    block.appendChild(body);
+    container.appendChild(block);
+  });
+
+  // Set today's date
+  document.getElementById('meta-date').value = new Date().toISOString().split('T')[0];
+
+  updateProgress();
+}
+
+function setAnswer(key, val, secNum) {
+  const prev = state[key].answer;
+  state[key].answer = prev === val ? null : val;
+  renderRow(key, secNum);
+  updateProgress();
+  updateSectionStats(secNum);
+}
+
+function setRemark(key, val) {
+  state[key].remark = val;
+  const pr = document.getElementById('print-remark-' + key);
+  if (pr) pr.textContent = val;
+}
+
+function renderRow(key, secNum) {
+  const ans = state[key].answer;
+  const row = document.getElementById('row-' + key);
+  row.classList.remove('answered-yes', 'answered-no');
+  if (ans === 'yes') row.classList.add('answered-yes');
+  if (ans === 'no')  row.classList.add('answered-no');
+
+  ['yes','no','na'].forEach(v => {
+    const btn = document.getElementById(`btn-${v}-${key}`);
+    if (!btn) return;
+    btn.classList.remove('active-yes','active-no','active-na');
+    if (ans === v) btn.classList.add(`active-${v}`);
+  });
+
+  // Update print label
+  const printEl = document.getElementById('print-' + key);
+  if (printEl) {
+    printEl.classList.remove('ans-yes','ans-no','ans-na');
+    if (ans === 'yes') { printEl.textContent = 'OUI'; printEl.classList.add('ans-yes'); }
+    else if (ans === 'no') { printEl.textContent = 'NON'; printEl.classList.add('ans-no'); }
+    else if (ans === 'na') { printEl.textContent = 'N/A'; printEl.classList.add('ans-na'); }
+    else { printEl.textContent = '—'; }
+  }
+}
+
+function updateSectionStats(secNum) {
+  const sec = DATA.find(s => s.num === secNum);
+  let yes = 0, no = 0;
+  sec.items.forEach((item, ii) => {
+    if (!item.id) return;
+    const key = itemKey(sec.num, item.id, ii);
+    if (state[key].answer === 'yes') yes++;
+    if (state[key].answer === 'no') no++;
+  });
+  document.getElementById(`stat-yes-${secNum}`).textContent = `✓ ${yes}`;
+  document.getElementById(`stat-no-${secNum}`).textContent = `✗ ${no}`;
+}
+
+function updateProgress() {
+  let total = 0, answered = 0, yes = 0, no = 0, na = 0;
+  Object.entries(state).forEach(([k, v]) => {
+    // only checkable items
+    const isCheckable = !k.includes('_note_');
+    if (!isCheckable) return;
+    total++;
+    if (v.answer) {
+      answered++;
+      if (v.answer === 'yes') yes++;
+      if (v.answer === 'no') no++;
+      if (v.answer === 'na') na++;
+    }
+  });
+  const pct = total ? Math.round(answered / total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${answered} / ${total}`;
+  document.getElementById('sumYes').textContent = yes;
+  document.getElementById('sumNo').textContent = no;
+  document.getElementById('sumNa').textContent = na;
+  document.getElementById('sumTotal').textContent = answered;
+}
+
+function resetAll() {
+  if (!confirm('Réinitialiser toutes les réponses ?')) return;
+  Object.keys(state).forEach(k => { state[k].answer = null; state[k].remark = ''; });
+  // Clear UI
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active-yes','active-no','active-na'));
+  document.querySelectorAll('.item-row').forEach(r => r.classList.remove('answered-yes','answered-no'));
+  document.querySelectorAll('.item-remark input').forEach(i => i.value = '');
+  DATA.forEach(sec => updateSectionStats(sec.num));
+  updateProgress();
+  showToast('Réinitialisé');
+}
+
+function exportJSON() {
+  const meta = {
+    local: document.getElementById('meta-local').value,
+    date: document.getElementById('meta-date').value,
+    client: document.getElementById('meta-client').value,
+    destination: document.getElementById('meta-dest').value,
+    m2: document.getElementById('meta-m2').value,
+    hsp: document.getElementById('meta-hsp').value,
+    duree: document.getElementById('meta-duree').value,
+  };
+  const export_data = { meta, reponses: state };
+  const blob = new Blob([JSON.stringify(export_data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `diagnostic-erp-${meta.client || 'export'}-${meta.date || 'date'}.json`;
+  a.click();
+  showToast('Export téléchargé');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+buildUI();
+</script>
+</body>
+</html>
